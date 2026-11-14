@@ -81,7 +81,17 @@ const $=id=>document.getElementById(id);
 function filterTools(){let q=$('search').value.toLowerCase().trim(),n=0;document.querySelectorAll('.tool').forEach(c=>{let ok=(c.innerText+' '+c.dataset.key).toLowerCase().includes(q);c.style.display=ok?'flex':'none';if(ok)n++});$('empty').style.display=n?'none':'block'}
 function openTool(which){let p=$('panel'),c=$('panelContent');p.classList.add('active');let html='';
 if(which==='image')html=`<h3>🖼️ Image Resize & Compress</h3><p class="hint">ছবি আপনার ডিভাইসেই প্রসেস হবে। JPG/PNG/WebP সাপোর্ট করে।</p><div class="row"><input class="field" type="file" id="imgFile" accept="image/*"></div><div class="row"><label>Width <input class="field" type="number" id="imgW" min="1" placeholder="px"></label><label>Height <input class="field" type="number" id="imgH" min="1" placeholder="px"></label><label>Quality <input class="field" type="number" id="imgQ" min="10" max="100" value="85"></label></div><div class="row"><label>Format <select class="field" id="imgFmt"><option value="image/jpeg">JPG</option><option value="image/png">PNG</option><option value="image/webp">WebP</option></select></label><button class="btn primary" onclick="processImage(false)">প্রসেস করুন</button></div><img id="imgPreview" class="preview" hidden><div id="imgResult" class="result"></div>`;
-if(which==='passport')html=`<h3>📸 Passport Photo Maker</h3><p class="hint">এটি 35×45 অনুপাতের ছবি তৈরি করবে। অফিসিয়াল নিয়ম দেশ/আবেদনভেদে আলাদা হতে পারে।</p><input class="field" type="file" id="passFile" accept="image/*"><div class="row"><button class="btn primary" onclick="processImage(true)">35×45 ছবি তৈরি করুন</button></div><img id="passPreview" class="preview" hidden><div id="passResult" class="result"></div>`;
+if(which==='passport')html=`<h3>📸 Passport Photo Maker & Print Sheet</h3><p class="hint">ছবি নির্বাচন করুন, ছবির মাপ ও কাগজ বেছে নিন, কপি সংখ্যা দিন। একবার তৈরি করলেই PDF ডাউনলোড বা প্রিন্ট করতে পারবেন। সরকারি আবেদনের নিয়ম আলাদা হতে পারে—জমা দেওয়ার আগে মাপ যাচাই করুন।</p>
+<label>১. আপনার ছবি নির্বাচন করুন</label><input class="field" type="file" id="passFile" accept="image/*">
+<div class="row"><label>২. ছবির সাইজ <select class="field" id="passSize" onchange="togglePassCustom()"><option value="35,45">India Passport / Visa – 35 × 45 mm</option><option value="51,51">US / Square – 2 × 2 inch (51 × 51 mm)</option><option value="40,50">40 × 50 mm</option><option value="30,40">30 × 40 mm</option><option value="25,35">25 × 35 mm</option><option value="40,60">40 × 60 mm</option><option value="custom">নিজের মাপ (Custom)</option></select></label></div>
+<div class="row" id="passCustomSize" style="display:none"><label>প্রস্থ (mm) <input class="field" id="passW" type="number" min="10" max="100" value="35"></label><label>উচ্চতা (mm) <input class="field" id="passH" type="number" min="10" max="120" value="45"></label></div>
+<div class="row"><label>৩. প্রিন্ট পেজ <select class="field" id="passPage" onchange="togglePassPageCustom()"><option value="210,297">A4 – 210 × 297 mm</option><option value="148,210">A5 – 148 × 210 mm</option><option value="101.6,152.4">4 × 6 inch Photo Paper</option><option value="215.9,279.4">US Letter</option><option value="custom">Custom Page</option></select></label></div>
+<div class="row" id="passCustomPage" style="display:none"><label>পেজের প্রস্থ (mm) <input class="field" id="passPageW" type="number" min="50" max="500" value="210"></label><label>পেজের উচ্চতা (mm) <input class="field" id="passPageH" type="number" min="50" max="700" value="297"></label></div>
+<div class="row"><label>৪. প্রতি পেজে ছবি <select class="field" id="passCount"><option value="5">৫টি</option><option value="10" selected>১০টি</option><option value="30">৩০টি</option><option value="45">৪৫টি</option><option value="custom">নিজের সংখ্যা</option></select></label><label id="passCustomCount" style="display:none">কপি সংখ্যা <input class="field" id="passCountN" type="number" min="1" max="300" value="10"></label></div>
+<div class="row"><label>মার্জিন (mm) <select class="field" id="passMargin"><option value="3">৩ mm</option><option value="5" selected>৫ mm</option><option value="8">৮ mm</option><option value="10">১০ mm</option></select></label><label>ছবির মাঝে ফাঁক <select class="field" id="passGap"><option value="1">১ mm</option><option value="2" selected>২ mm</option><option value="3">৩ mm</option></select></label></div>
+<div class="row"><button class="btn primary" onclick="makePassportSheet()">ছবি ও প্রিন্ট পেজ তৈরি করুন</button></div>
+<div id="passResult" class="result"></div><div id="passSheetPreview"></div>
+<div class="row"><button class="btn primary" id="passPdfBtn" onclick="downloadPassportPDF()" disabled>PDF ডাউনলোড</button><button class="btn secondary" id="passJpgBtn" onclick="downloadPassportJPG()" disabled>পেজ JPG ডাউনলোড</button><button class="btn secondary" id="passPrintBtn" onclick="printPassport()" disabled>সরাসরি প্রিন্ট</button></div>`;
 if(which==='counter')html=`<h3>🔢 Word & Character Counter</h3><p class="hint">নিচে লেখা বা পেস্ট করুন। হিসাব সঙ্গে সঙ্গে আপডেট হবে।</p><textarea class="field" id="countText" placeholder="এখানে লিখুন..." oninput="countText()"></textarea><div class="result" id="countResult">শব্দ: 0 | অক্ষর: 0 | অক্ষর (space ছাড়া): 0 | লাইন: 0</div>`;
 if(which==='case')html=`<h3>🔠 Text Case Converter</h3><textarea class="field" id="caseText" placeholder="এখানে ইংরেজি লেখা লিখুন..."></textarea><div class="row"><button class="btn primary" onclick="convertCase('upper')">UPPERCASE</button><button class="btn secondary" onclick="convertCase('lower')">lowercase</button><button class="btn secondary" onclick="convertCase('title')">Title Case</button><button class="btn secondary" onclick="copyCase()">কপি</button></div><div class="result" id="caseResult"></div>`;
 if(which==='pdf')html=`<h3>📑 PDF Merger</h3><p class="hint">একাধিক PDF এক ফাইলে যুক্ত করুন। ফাইলগুলো ব্রাউজারে প্রসেস হয়। প্রথমবার PDF লাইব্রেরি লোড করতে ইন্টারনেট লাগবে।</p><input class="field" type="file" id="pdfFiles" accept="application/pdf" multiple><div class="row"><button class="btn primary" onclick="mergePDF()">PDF Merge & Download</button></div><div class="result" id="pdfResult"></div>`;
@@ -109,7 +119,7 @@ function countText(){let t=$('countText').value,words=t.trim()?t.trim().split(/\
 function convertCase(type){let t=$('caseText').value;if(type==='upper')t=t.toUpperCase();if(type==='lower')t=t.toLowerCase();if(type==='title')t=t.toLowerCase().replace(/\b\w/g,x=>x.toUpperCase());$('caseText').value=t;$('caseResult').textContent='রূপান্তর সম্পন্ন।'}
 function copyCase(){navigator.clipboard?.writeText($('caseText').value).then(()=>$('caseResult').textContent='কপি হয়েছে।').catch(()=>$('caseResult').textContent='কপি করা যায়নি; লেখা সিলেক্ট করে কপি করুন।')}
 function loadImage(file){return new Promise((res,rej)=>{let im=new Image(),url=URL.createObjectURL(file);im.onload=()=>{URL.revokeObjectURL(url);res(im)};im.onerror=rej;im.src=url})}
-async function processImage(passport){let file=$(passport?'passFile':'imgFile').files[0],out=$(passport?'passResult':'imgResult'),preview=$(passport?'passPreview':'imgPreview');if(!file){out.textContent='আগে একটি ছবি নির্বাচন করুন।';return}try{let im=await loadImage(file),canvas=document.createElement('canvas'),w,h;if(passport){w=413;h=531}else{w=parseInt($('imgW').value)||im.width;h=parseInt($('imgH').value)||Math.round(im.height*w/im.width)}canvas.width=w;canvas.height=h;let ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);let scale=passport?Math.max(w/im.width,h/im.height):1;let dw=passport?im.width*scale:w,dh=passport?im.height*scale:h;ctx.drawImage(im,(w-dw)/2,(h-dh)/2,dw,dh);let fmt=passport?'image/jpeg':$('imgFmt').value,q=passport?.92:Math.min(100,Math.max(10,parseInt($('imgQ').value)||85))/100;let url=canvas.toDataURL(fmt,q);preview.src=url;preview.hidden=false;let a=document.createElement('a');a.href=url;a.download=passport?'passport-photo-35x45.jpg':'resized-image.'+(fmt==='image/png'?'png':fmt==='image/webp'?'webp':'jpg');a.textContent='ডাউনলোড করুন';a.className='btn primary';out.textContent=`সম্পন্ন: ${w} × ${h} px `;out.appendChild(document.createTextNode(' '));out.appendChild(a)}catch(e){out.textContent='ছবি প্রসেস করা যায়নি। অন্য ছবি দিয়ে চেষ্টা করুন।'}}
+async async function processImage(passport){let file=$(passport?'passFile':'imgFile').files[0],out=$(passport?'passResult':'imgResult'),preview=$(passport?'passPreview':'imgPreview');if(!file){out.textContent='আগে একটি ছবি নির্বাচন করুন।';return}try{let im=await loadImage(file),canvas=document.createElement('canvas'),w,h;if(passport){w=413;h=531}else{w=parseInt($('imgW').value)||im.width;h=parseInt($('imgH').value)||Math.round(im.height*w/im.width)}canvas.width=w;canvas.height=h;let ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);let scale=passport?Math.max(w/im.width,h/im.height):1;let dw=passport?im.width*scale:w,dh=passport?im.height*scale:h;ctx.drawImage(im,(w-dw)/2,(h-dh)/2,dw,dh);let fmt=passport?'image/jpeg':$('imgFmt').value,q=passport?.92:Math.min(100,Math.max(10,parseInt($('imgQ').value)||85))/100;let url=canvas.toDataURL(fmt,q);preview.src=url;preview.hidden=false;let a=document.createElement('a');a.href=url;a.download=passport?'passport-photo-35x45.jpg':'resized-image.'+(fmt==='image/png'?'png':fmt==='image/webp'?'webp':'jpg');a.textContent='ডাউনলোড করুন';a.className='btn primary';out.textContent=`সম্পন্ন: ${w} × ${h} px `;out.appendChild(document.createTextNode(' '));out.appendChild(a)}catch(e){out.textContent='ছবি প্রসেস করা যায়নি। অন্য ছবি দিয়ে চেষ্টা করুন।'}}
 async function mergePDF(){let files=$('pdfFiles').files,el=$('pdfResult');if(files.length<2){el.textContent='কমপক্ষে ২টি PDF নির্বাচন করুন।';return}el.textContent='PDF প্রস্তুত হচ্ছে...';try{if(!window.PDFLib){await new Promise((resolve,reject)=>{let s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js';s.onload=resolve;s.onerror=reject;document.head.appendChild(s)})}let merged=await PDFLib.PDFDocument.create();for(let f of files){let doc=await PDFLib.PDFDocument.load(await f.arrayBuffer());let pages=await merged.copyPages(doc,doc.getPageIndices());pages.forEach(p=>merged.addPage(p))}let bytes=await merged.save(),blob=new Blob([bytes],{type:'application/pdf'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='merged.pdf';a.textContent='merged.pdf ডাউনলোড করুন';a.className='btn primary';el.textContent='Merge সম্পন্ন: ';el.appendChild(a)}catch(e){el.textContent='PDF merge করা যায়নি। PDF ফাইলগুলো ঠিক আছে কি না দেখুন এবং ইন্টারনেট সংযোগ পরীক্ষা করুন।'}}
 
 function money(n){return Number(n).toLocaleString('en-IN',{maximumFractionDigits:2})}
@@ -140,6 +150,64 @@ function initBanglaKeys(){var box=$('banglaKeys');box.innerHTML='';banglaChars.f
 function insertBangla(ch){var el=$('banglaText'),a=el.selectionStart,b=el.selectionEnd;el.value=el.value.slice(0,a)+ch+el.value.slice(b);el.focus();el.selectionStart=el.selectionEnd=a+ch.length}
 function banglaBackspace(){var el=$('banglaText'),a=el.selectionStart,b=el.selectionEnd;if(a===b&&a>0)a--;el.value=el.value.slice(0,a)+el.value.slice(b);el.focus();el.selectionStart=el.selectionEnd=a}
 function banglaSpace(){insertBangla(' ')}
+
+
+var passportSheets=[];
+function togglePassCustom(){var custom=$('passSize').value==='custom';$('passCustomSize').style.display=custom?'flex':'none'}
+function togglePassPageCustom(){var custom=$('passPage').value==='custom';$('passCustomPage').style.display=custom?'flex':'none'}
+function passDims(){var p=$('passSize').value.split(',');var w=p[0]==='custom'?Number($('passW').value):Number(p[0]),h=p[0]==='custom'?Number($('passH').value):Number(p[1]);return {w:w,h:h}}
+function passPageDims(){var p=$('passPage').value.split(',');var w=p[0]==='custom'?Number($('passPageW').value):Number(p[0]),h=p[0]==='custom'?Number($('passPageH').value):Number(p[1]);return {w:w,h:h}}
+async function makePassportSheet(){
+ var file=$('passFile').files[0],out=$('passResult'),preview=$('passSheetPreview');
+ if(!file){out.textContent='প্রথমে আপনার ছবি নির্বাচন করুন।';return}
+ var d=passDims(),pg=passPageDims(),margin=Number($('passMargin').value),gap=Number($('passGap').value),wanted=$('passCount').value==='custom'?Number($('passCountN').value):Number($('passCount').value);
+ if(!Number.isFinite(d.w+d.h+pg.w+pg.h+wanted)||d.w<10||d.h<10||d.w>100||d.h>120||pg.w<50||pg.h<50||wanted<1||wanted>300){out.textContent='সঠিক কাস্টম মাপ ও কপি সংখ্যা লিখুন।';return}
+ out.textContent='আপনার প্রিন্ট শিট তৈরি হচ্ছে...';preview.innerHTML='';passportSheets=[];
+ try{
+  var im=await loadImage(file),dpi=300,pxmm=dpi/25.4,pw=Math.round(pg.w*pxmm),ph=Math.round(pg.h*pxmm),photoW=Math.round(d.w*pxmm),photoH=Math.round(d.h*pxmm),m=Math.round(margin*pxmm),g=Math.round(gap*pxmm);
+  var cols=Math.floor((pw-2*m+g)/(photoW+g)),rows=Math.floor((ph-2*m+g)/(photoH+g)),maxPer=cols*rows;
+  if(maxPer<1){out.textContent='এই পেজে নির্বাচিত ছবির মাপ ফিট হচ্ছে না। বড় পেজ বা ছোট ছবির মাপ বেছে নিন।';return}
+  var perPage=Math.min(wanted,maxPer),totalPages=Math.ceil(wanted/perPage),canvas,ctx;
+  for(var page=0;page<totalPages;page++){
+   canvas=document.createElement('canvas');canvas.width=pw;canvas.height=ph;ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,pw,ph);
+   var count=Math.min(perPage,wanted-page*perPage);
+   for(var k=0;k<count;k++){
+    var col=k%cols,row=Math.floor(k/cols),x=m+col*(photoW+g),y=m+row*(photoH+g);
+    ctx.save();ctx.beginPath();ctx.rect(x,y,photoW,photoH);ctx.clip();
+    var scale=Math.max(photoW/im.width,photoH/im.height),dw=im.width*scale,dh=im.height*scale;
+    ctx.drawImage(im,x+(photoW-dw)/2,y+(photoH-dh)/2,dw,dh);ctx.restore();
+    ctx.strokeStyle='#b8b8b8';ctx.lineWidth=Math.max(1,Math.round(pxmm*.15));ctx.strokeRect(x,y,photoW,photoH);
+   }
+   passportSheets.push(canvas.toDataURL('image/jpeg',.96));
+  }
+  var msg='তৈরি হয়েছে: '+wanted+'টি ছবি | প্রতি পেজে সর্বোচ্চ '+maxPer+'টি ফিট হবে | তৈরি পেজ: '+totalPages+'.';
+  if(wanted>maxPer)msg+=' নির্বাচিত সংখ্যা এক পেজে ফিট হয়নি, তাই স্বয়ংক্রিয়ভাবে একাধিক পেজে ভাগ করা হয়েছে।';
+  msg+=' প্রিন্টের সময় Actual Size / 100% নির্বাচন করুন; Fit to page বন্ধ রাখুন।';out.textContent=msg;
+  var first=document.createElement('img');first.src=passportSheets[0];first.className='preview';first.style.maxWidth='100%';first.style.maxHeight='none';preview.appendChild(first);
+  var cap=document.createElement('div');cap.className='result';cap.textContent='প্রিভিউ: পেজ ১ / '+totalPages;preview.appendChild(cap);
+  ['passPdfBtn','passJpgBtn','passPrintBtn'].forEach(function(id){$(id).disabled=false});
+ }catch(e){out.textContent='ছবি তৈরি করা যায়নি। অন্য ছবি দিয়ে চেষ্টা করুন।';}
+}
+async function downloadPassportPDF(){
+ if(!passportSheets.length)return;
+ var btn=$('passPdfBtn');btn.disabled=true;
+ try{
+  var d=passPageDims();
+  await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',function(){return !!(window.jspdf&&window.jspdf.jsPDF)});
+  var doc=new jspdf.jsPDF({orientation:d.w>d.h?'landscape':'portrait',unit:'mm',format:[d.w,d.h],compress:true});
+  for(var i=0;i<passportSheets.length;i++){if(i)doc.addPage([d.w,d.h],d.w>d.h?'landscape':'portrait');doc.addImage(passportSheets[i],'JPEG',0,0,d.w,d.h,undefined,'FAST')}
+  doc.save('passport-photo-print-sheet.pdf');
+ }catch(e){$('passResult').textContent='PDF তৈরি হয়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন.'}
+ btn.disabled=false;
+}
+function downloadPassportJPG(){if(!passportSheets.length)return;var a=document.createElement('a');a.href=passportSheets[0];a.download='passport-photo-sheet-page-1.jpg';a.click()}
+function printPassport(){
+ if(!passportSheets.length)return;
+ var d=passPageDims(),w=d.w+'mm',h=d.h+'mm',html='<!doctype html><html><head><meta charset="utf-8"><title>Passport Photo Print</title><style>@page{size:'+w+' '+h+';margin:0}html,body{margin:0;padding:0} .sheet{width:'+w+';height:'+h+';page-break-after:always;break-after:page;display:block}.sheet:last-child{page-break-after:auto;break-after:auto}img{width:100%;height:100%;display:block}</style></head><body>';
+ passportSheets.forEach(function(src){html+='<div class="sheet"><img src="'+src+'"></div>'});html+='</body></html>';
+ var win=window.open('','_blank');if(!win){$('passResult').textContent='পপ-আপ ব্লক হয়েছে। PDF ডাউনলোড করে সেটি প্রিন্ট করুন।';return}
+ win.document.open();win.document.write(html);win.document.close();win.onload=function(){win.focus();win.print()};
+}
 
 function calcAge(){let v=$('birthDate').value;if(!v){$('ageResult').textContent='জন্মতারিখ দিন।';return}let b=new Date(v+'T00:00:00'),n=new Date();if(b>n){$('ageResult').textContent='জন্মতারিখ ভবিষ্যতের হতে পারে না।';return}let y=n.getFullYear()-b.getFullYear(),m=n.getMonth()-b.getMonth(),d=n.getDate()-b.getDate();if(d<0){m--;d+=new Date(n.getFullYear(),n.getMonth(),0).getDate()}if(m<0){y--;m+=12}$('ageResult').textContent=`আপনার বয়স: ${y} বছর, ${m} মাস, ${d} দিন।`}
 </script>
