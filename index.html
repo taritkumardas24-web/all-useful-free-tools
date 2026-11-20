@@ -301,32 +301,7 @@ function downloadPassportJPG(){if(!passportSheets.length)return;var a=document.c
 function printPassport(){
  if(!passportSheets.length)return;
  var d=passPageDims(),w=d.w+'mm',h=d.h+'mm',html='<!doctype html><html><head><meta charset="utf-8"><title>Passport Photo Print</title><style>@page{size:'+w+' '+h+';margin:0}html,body{margin:0;padding:0} .sheet{width:'+w+';height:'+h+';page-break-after:always;break-after:page;display:block}.sheet:last-child{page-break-after:auto;break-after:auto}img{width:100%;height:100%;display:block}</style></head><body>';
- passportSheets.forEach(function(src){html+='<div class="sheet"><img src="'+src+'"></div>'});html+='<script>
-function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
-async function verifyDigitalSignature(){
- const fileInput=document.getElementById('sigPdfFile');
- const status=document.getElementById('sigVerifyStatus');
- const report=document.getElementById('sigVerifyReport');
- if(!fileInput||!fileInput.files||!fileInput.files[0]){status.textContent='প্রথমে একটি PDF নির্বাচন করুন।';return;}
- const file=fileInput.files[0];
- if(file.size>25*1024*1024){status.textContent='PDF ফাইল 25 MB-এর বেশি হতে পারবে না।';return;}
- const apiBase=(window.SIGNATURE_API_BASE||'').replace(/\/$/,'');
- if(!apiBase){status.textContent='Verification service এখনো deploy/configure করা হয়নি।';return;}
- status.textContent='PDF পরীক্ষা করা হচ্ছে…';
- report.innerHTML='';
- const data=new FormData();data.append('file',file);
- try{
-  const response=await fetch(apiBase+'/api/verify',{method:'POST',body:data});
-  const result=await response.json();
-  if(!response.ok)throw new Error(result.detail||'Verification request failed');
-  const passed=result.green_verified===true;
-  status.innerHTML=passed?'<strong style="color:#22c55e">✓ VERIFIED</strong>':'<strong style="color:#ef4444">✕ NOT VERIFIED</strong>';
-  const checks=(result.checks||[]).map(x=>'<li>'+escapeHtml(x.name)+': '+escapeHtml(x.status)+'</li>').join('');
-  const sigs=(result.signatures||[]).map(x=>'<section class="result"><strong>'+escapeHtml(x.field_name||('Signature '+x.number))+'</strong><p>'+escapeHtml(x.status)+'</p><pre style="white-space:pre-wrap">'+escapeHtml(x.details||'')+'</pre></section>').join('');
-  report.innerHTML='<div class="result"><p>'+escapeHtml(result.message||'')+'</p><ul>'+checks+'</ul>'+sigs+'<p>'+escapeHtml(result.note||'')+'</p></div>';
- }catch(error){status.textContent='Verification service error: '+error.message;report.innerHTML='';}
-}
-</script>\n</body></html>';
+ passportSheets.forEach(function(src){html+='<div class="sheet"><img src="'+src+'"></div>'});html+='\n</body></html>';
  var win=window.open('','_blank');if(!win){$('passResult').textContent='পপ-আপ ব্লক হয়েছে। PDF ডাউনলোড করে সেটি প্রিন্ট করুন।';return}
  win.document.open();win.document.write(html);win.document.close();win.onload=function(){win.focus();win.print()};
 }
@@ -373,5 +348,31 @@ function changeTypingPrompt(){if(!$('typingInput'))return;$('typingInput').value
 function startTypingTest(){typingStart=Date.now();typingActive=true;$('typingInput').disabled=false;$('typingInput').value='';$('typingInput').focus();$('typingResult').textContent='টাইপ করা শুরু করুন।'}
 function updateTypingTest(){if(!typingActive)return;var elapsed=Math.max(1,(Date.now()-typingStart)/1000),typed=$('typingInput').value,target=$('typingPrompt').textContent,correct=0;for(var i=0;i<Math.min(typed.length,target.length);i++)if(typed[i]===target[i])correct++;var accuracy=typed.length?Math.round(correct/typed.length*100):0,wpm=Math.round((typed.trim().split(/\s+/).filter(Boolean).length)/(elapsed/60));$('typingResult').textContent='সময়: '+Math.floor(elapsed)+' sec | Speed: '+wpm+' WPM | Accuracy: '+accuracy+'%';if(typed===target){typingActive=false;$('typingInput').disabled=true;$('typingResult').textContent+=' | সম্পন্ন!'}}
 function calcCGPA(){var v=Number($('cgpaValue').value),f=Number($('cgpaFactor').value);if(v<0||v>10||f<=0)return $('cgpaResult').textContent='CGPA 0–10 এবং multiplier সঠিক দিন।';$('cgpaResult').textContent='আনুমানিক Percentage: '+(v*f).toFixed(2)+'% — আপনার প্রতিষ্ঠানের official formula-ই চূড়ান্ত।'}
+</script>
+<script>
+function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+async function verifyDigitalSignature(){
+ const fileInput=document.getElementById('sigPdfFile');
+ const status=document.getElementById('sigVerifyStatus');
+ const report=document.getElementById('sigVerifyReport');
+ if(!fileInput||!fileInput.files||!fileInput.files[0]){status.textContent='প্রথমে একটি PDF নির্বাচন করুন।';return;}
+ const file=fileInput.files[0];
+ if(file.size>25*1024*1024){status.textContent='PDF ফাইল 25 MB-এর বেশি হতে পারবে না।';return;}
+ const apiBase=(window.SIGNATURE_API_BASE||'').replace(/\/$/,'');
+ if(!apiBase){status.textContent='Verification service এখনো deploy/configure করা হয়নি।';return;}
+ status.textContent='PDF পরীক্ষা করা হচ্ছে…';
+ report.innerHTML='';
+ const data=new FormData();data.append('file',file);
+ try{
+  const response=await fetch(apiBase+'/api/verify',{method:'POST',body:data});
+  const result=await response.json();
+  if(!response.ok)throw new Error(result.detail||'Verification request failed');
+  const passed=result.green_verified===true;
+  status.innerHTML=passed?'<strong style="color:#22c55e">✓ VERIFIED</strong>':'<strong style="color:#ef4444">✕ NOT VERIFIED</strong>';
+  const checks=(result.checks||[]).map(x=>'<li>'+escapeHtml(x.name)+': '+escapeHtml(x.status)+'</li>').join('');
+  const sigs=(result.signatures||[]).map(x=>'<section class="result"><strong>'+escapeHtml(x.field_name||('Signature '+x.number))+'</strong><p>'+escapeHtml(x.status)+'</p><pre style="white-space:pre-wrap">'+escapeHtml(x.details||'')+'</pre></section>').join('');
+  report.innerHTML='<div class="result"><p>'+escapeHtml(result.message||'')+'</p><ul>'+checks+'</ul>'+sigs+'<p>'+escapeHtml(result.note||'')+'</p></div>';
+ }catch(error){status.textContent='Verification service error: '+error.message;report.innerHTML='';}
+}
 </script>
 </body></html>
