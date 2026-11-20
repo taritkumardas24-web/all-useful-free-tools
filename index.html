@@ -302,6 +302,7 @@ function printPassport(){
  if(!passportSheets.length)return;
  var d=passPageDims(),w=d.w+'mm',h=d.h+'mm',html='<!doctype html><html><head><meta charset="utf-8"><title>Passport Photo Print</title><style>@page{size:'+w+' '+h+';margin:0}html,body{margin:0;padding:0} .sheet{width:'+w+';height:'+h+';page-break-after:always;break-after:page;display:block}.sheet:last-child{page-break-after:auto;break-after:auto}img{width:100%;height:100%;display:block}</style></head><body>';
  passportSheets.forEach(function(src){html+='<div class="sheet"><img src="'+src+'"></div>'});html+='<script>
+function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
 async function verifyDigitalSignature(){
  const fileInput=document.getElementById('sigPdfFile');
  const status=document.getElementById('sigVerifyStatus');
