@@ -8,13 +8,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.concurrency import run_in_threadpool
 
-from pyhanko.keys import load_certs_from_pemder
+from pyhanko.keys import load_certs_from_pemder\nfrom cryptography import x509\nfrom cryptography.hazmat.primitives import hashes
 from pyhanko.pdf_utils.reader import PdfFileReader
 from pyhanko_certvalidator import ValidationContext
 from pyhanko.sign.validation import validate_pdf_signature
 
 MAX_BYTES = 25 * 1024 * 1024
-ROOT_PEM = os.getenv("CCA_ROOT_CERT_PEM", "").strip()
+ROOT_PEM = os.getenv("CCA_ROOT_CERT_PEM", "").strip()\nROOT_SHA256 = os.getenv("CCA_ROOT_SHA256_HEX", "").replace(":", "").replace(" ", "").lower()
 ALLOWED_ORIGINS = [
     item.strip()
     for item in os.getenv(
@@ -36,7 +36,7 @@ app.add_middleware(
 
 @app.get("/health")
 def health() -> dict[str, Any]:
-    configured = bool(ROOT_PEM.startswith("-----BEGIN CERTIFICATE-----") and "-----END CERTIFICATE-----" in ROOT_PEM)
+    configured = bool(ROOT_PEM.startswith("-----BEGIN CERTIFICATE-----") and "-----END CERTIFICATE-----" in ROOT_PEM and len(ROOT_SHA256) == 64)
     return {
         "status": "ok",
         "verification_engine": "pyHanko",
@@ -46,7 +46,7 @@ def health() -> dict[str, Any]:
 
 
 def _validate_pdf(data: bytes) -> dict[str, Any]:
-    if not ROOT_PEM.startswith("-----BEGIN CERTIFICATE-----"):
+    if not ROOT_PEM.startswith("-----BEGIN CERTIFICATE-----") or len(ROOT_SHA256) != 64:
         return {
             "overall": "unverified",
             "green_verified": False,
@@ -56,7 +56,7 @@ def _validate_pdf(data: bytes) -> dict[str, Any]:
         }
 
     try:
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".pem", encoding="ascii") as cert_file:\n            cert_file.write(ROOT_PEM)\n            cert_file.flush()\n            roots = list(load_certs_from_pemder([cert_file.name]))
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".pem", encoding="ascii") as cert_file:\n            cert_file.write(ROOT_PEM)\n            cert_file.flush()\n            parsed_root = x509.load_pem_x509_certificate(ROOT_PEM.encode("ascii"))\n            actual_fingerprint = parsed_root.fingerprint(hashes.SHA256()).hex()\n            if actual_fingerprint != ROOT_SHA256:\n                raise ValueError("CCA root SHA-256 fingerprint does not match the independently confirmed pin")\n            roots = list(load_certs_from_pemder([cert_file.name]))
         if not roots:
             raise ValueError("No certificates found in configured trust file")
 
