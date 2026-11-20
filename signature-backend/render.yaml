@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: all-useful-free-tools-signature-api
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./signature-backend/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: CCA_ROOT_CERT_PATH
+        value: /app/certs/cca-india-root.pem
+      - key: ALLOWED_ORIGINS
+        value: https://taritkumardas24-web.github.io
