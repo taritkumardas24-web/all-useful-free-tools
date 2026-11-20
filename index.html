@@ -197,7 +197,7 @@ if(which==='json')html='<h3>{ } JSON Formatter & Validator</h3><p class="hint">J
 if(which==='upiqr')html='<h3>₹ UPI Payment QR Generator</h3><p class="hint">নিজের UPI ID লিখুন। পেমেন্টের আগে QR স্ক্যান করে তথ্য যাচাই করুন।</p><input class="field" id="upiId" placeholder="yourname@upi"><input class="field" id="upiName" placeholder="Payee name"><input class="field" id="upiAmount" type="number" min="1" step="0.01" placeholder="Amount (optional)"><input class="field" id="upiNote" placeholder="Note (optional)"><button class="btn primary" onclick="makeUPIQR()">Generate UPI QR</button><div id="upiOutput" class="result"></div>';
 if(which==='typingtest')html='<h3>⌨️ Typing Speed Test</h3><p class="hint">বাক্যটি দেখে টাইপ করুন। Start চাপার পর সময় গণনা শুরু হবে।</p><div class="result" id="typingPrompt">The quick brown fox jumps over the lazy dog.</div><div class="row"><label>Language <select class="field" id="typingLang" onchange="changeTypingPrompt()"><option value="en">English</option><option value="bn">বাংলা</option></select></label><button class="btn primary" onclick="startTypingTest()">Start / Reset</button></div><textarea class="field" id="typingInput" placeholder="এখানে টাইপ করুন..." oninput="updateTypingTest()" disabled></textarea><div id="typingResult" class="result">সময়: 0 sec | Speed: 0 WPM | Accuracy: 0%</div>';
 if(which==='cgpa')html='<h3>🎓 CGPA to Percentage Calculator</h3><p class="hint">প্রতিষ্ঠানভেদে formula আলাদা হতে পারে। নিজের বোর্ড/বিশ্ববিদ্যালয়ের নির্ধারিত multiplier ব্যবহার করুন।</p><div class="row"><label>CGPA <input class="field" type="number" id="cgpaValue" min="0" max="10" step="0.01" value="8"></label><label>Multiplier <input class="field" type="number" id="cgpaFactor" min="1" max="20" step="0.1" value="9.5"></label></div><button class="btn primary" onclick="calcCGPA()">Calculate</button><div id="cgpaResult" class="result"></div>';
-if(which==='sigverify')html='<h3>🔏 Digital Signature Validator</h3><p class="hint">Aadhaar/e-Aadhaar, PAN/e-PAN, Caste Certificate বা অন্য digitally signed PDF পরীক্ষা করুন।</p><div class="notice"><strong>🔒 Privacy:</strong> যাচাইয়ের জন্য PDF নিরাপদ backend-এ পাঠানো হবে। ফাইল স্থায়ীভাবে সংরক্ষণ করা হবে না। ব্যক্তিগত নথি পরীক্ষার আগে গোপনীয়তার বিষয়টি বিবেচনা করুন।</div><div class="tool-panel"><label for="sigPdfFile">Select a digitally signed PDF (max 25 MB)</label><input class="field" id="sigPdfFile" type="file" accept="application/pdf,.pdf"><button class="btn primary" type="button" onclick="verifyDigitalSignature()">Verify PDF</button><div id="sigVerifyStatus" class="result" aria-live="polite">Backend deployment and CCA trust-root setup are required before verification can run.</div><div id="sigVerifyReport"></div></div><div class="hint"><strong>ফলাফল:</strong> কেবল সব configured cryptographic, trust-chain ও revocation check সফল হলে সবুজ Verified দেখানো হবে। অন্য ফলাফল Unknown/Failed হবে—কখনো জোর করে সবুজ টিক দেখানো হবে না।</div><p><a href="https://cca.gov.in/root_certificate.html" target="_blank" rel="noopener">India CCA Root Certificates ↗</a> · <a href="https://cca.gov.in/signature_verification.html" target="_blank" rel="noopener">CCA verification guidance ↗</a></p>';if(which==='smartcrop'||which==='idcrop')html='<h3>Card Crop & Print</h3><input class="field" type="file" id="cropFile" accept="image/*"><div class="row"><select class="field" id="cropRatio"><option value="1.586">PVC / ID Card</option><option value="1">Square</option><option value="0.707">Portrait</option></select><button class="btn primary" onclick="makeCardCrop()">Crop</button><button class="btn secondary" onclick="downloadCanvas(\'cropCanvas\',\'card-crop.png\')">Download</button></div><canvas id="cropCanvas" class="preview"></canvas><div id="cropMsg" class="result"></div>';
+if(which==='sigverify')html='<h3>🔏 Digital Signature Validator</h3><p class="hint">Aadhaar/e-Aadhaar, PAN/e-PAN, Caste Certificate বা অন্য digitally signed PDF পরীক্ষা করুন।</p><div class="notice"><strong>🔒 Privacy first:</strong> PDF ফাইলটি আপনার ব্রাউজারের মেমোরিতেই পড়া হয়। PDF কোনো backend বা verification server-এ upload করা হয় না। যাচাইয়ের জন্য কোনো PDF content network-এ পাঠানো হয় না।</div><div class="tool-panel"><label for="sigPdfFile">Select a digitally signed PDF (max 25 MB)</label><input class="field" id="sigPdfFile" type="file" accept="application/pdf,.pdf"><button class="btn primary" type="button" onclick="verifyDigitalSignature()">Verify PDF</button><div id="sigVerifyStatus" class="result" aria-live="polite">আপনার PDF নির্বাচন করে Verify PDF চাপুন।</div><div id="sigVerifyReport"></div></div><div class="hint"><strong>বিশ্বাসযোগ্যতার সীমা:</strong> এই browser-only সংস্করণ signature-এর cryptographic validity ও document integrity পরীক্ষা করে। এটি এখনো India CCA root-chain বা live CRL/OCSP revocation যাচাই করে না। তাই cryptographically valid মানেই সরকারি ভাবে trusted নয়।</div><p><a href="https://cca.gov.in/root_certificate.html" target="_blank" rel="noopener">India CCA Root Certificates ↗</a> · <a href="https://cca.gov.in/signature_verification.html" target="_blank" rel="noopener">CCA verification guidance ↗</a></p>';if(which==='smartcrop'||which==='idcrop')html='<h3>Card Crop & Print</h3><input class="field" type="file" id="cropFile" accept="image/*"><div class="row"><select class="field" id="cropRatio"><option value="1.586">PVC / ID Card</option><option value="1">Square</option><option value="0.707">Portrait</option></select><button class="btn primary" onclick="makeCardCrop()">Crop</button><button class="btn secondary" onclick="downloadCanvas(\'cropCanvas\',\'card-crop.png\')">Download</button></div><canvas id="cropCanvas" class="preview"></canvas><div id="cropMsg" class="result"></div>';
 if(which==='bulkcrop')html='<h3>Bulk PVC Card Crop</h3><input class="field" type="file" id="bulkFiles" accept="image/*" multiple><button class="btn primary" onclick="bulkCardCrop()">Crop All & Download ZIP</button><div id="bulkResult" class="result"></div>';
 if(which==='visiting')html='<h3>Visiting Card Maker</h3><input class="field" id="visitName" placeholder="Name"><input class="field" id="visitRole" placeholder="Profession"><input class="field" id="visitPhone" placeholder="Phone"><input class="field" id="visitEmail" placeholder="Email / Website"><input class="field" id="visitAddress" placeholder="Address"><button class="btn primary" onclick="drawVisiting()">Create</button><button class="btn secondary" onclick="downloadCanvas(\'visitCanvas\',\'visiting-card.png\')">Download PNG</button><canvas id="visitCanvas" width="1050" height="600" class="preview"></canvas>';
 if(which==='familytree')html='<h3>Family Tree Maker</h3><textarea class="field" id="familyNames" placeholder="প্রতি লাইনে একজন সদস্যের নাম"></textarea><button class="btn primary" onclick="drawFamilyTree()">Create Tree</button><button class="btn secondary" onclick="downloadCanvas(\'familyCanvas\',\'family-tree.png\')">Download</button><canvas id="familyCanvas" width="1000" height="900" class="preview"></canvas>';
@@ -351,28 +351,43 @@ function calcCGPA(){var v=Number($('cgpaValue').value),f=Number($('cgpaFactor').
 </script>
 <script>
 function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
-async function verifyDigitalSignature(){
- const fileInput=document.getElementById('sigPdfFile');
+window.verifyDigitalSignature=async function(){
+ const input=document.getElementById('sigPdfFile');
  const status=document.getElementById('sigVerifyStatus');
  const report=document.getElementById('sigVerifyReport');
- if(!fileInput||!fileInput.files||!fileInput.files[0]){status.textContent='প্রথমে একটি PDF নির্বাচন করুন।';return;}
- const file=fileInput.files[0];
+ if(!input?.files?.[0]){status.textContent='প্রথমে একটি PDF নির্বাচন করুন।';return;}
+ const file=input.files[0];
  if(file.size>25*1024*1024){status.textContent='PDF ফাইল 25 MB-এর বেশি হতে পারবে না।';return;}
- const apiBase=(window.SIGNATURE_API_BASE||'').replace(/\/$/,'');
- if(!apiBase){status.textContent='Verification service এখনো deploy/configure করা হয়নি।';return;}
- status.textContent='PDF পরীক্ষা করা হচ্ছে…';
+ if(file.type && file.type!=='application/pdf' && !file.name.toLowerCase().endsWith('.pdf')){status.textContent='শুধুমাত্র PDF ফাইল নির্বাচন করুন।';return;}
+ status.textContent='আপনার ডিভাইসেই PDF পরীক্ষা করা হচ্ছে…';
  report.innerHTML='';
- const data=new FormData();data.append('file',file);
  try{
-  const response=await fetch(apiBase+'/api/verify',{method:'POST',body:data});
-  const result=await response.json();
-  if(!response.ok)throw new Error(result.detail||'Verification request failed');
-  const passed=result.green_verified===true;
-  status.innerHTML=passed?'<strong style="color:#22c55e">✓ VERIFIED</strong>':'<strong style="color:#ef4444">✕ NOT VERIFIED</strong>';
-  const checks=(result.checks||[]).map(x=>'<li>'+escapeHtml(x.name)+': '+escapeHtml(x.status)+'</li>').join('');
-  const sigs=(result.signatures||[]).map(x=>'<section class="result"><strong>'+escapeHtml(x.field_name||('Signature '+x.number))+'</strong><p>'+escapeHtml(x.status)+'</p><pre style="white-space:pre-wrap">'+escapeHtml(x.details||'')+'</pre></section>').join('');
-  report.innerHTML='<div class="result"><p>'+escapeHtml(result.message||'')+'</p><ul>'+checks+'</ul>'+sigs+'<p>'+escapeHtml(result.note||'')+'</p></div>';
- }catch(error){status.textContent='Verification service error: '+error.message;report.innerHTML='';}
-}
-</script>
+  const {validatePdfFile}=await import('https://esm.sh/@signinspector/core@0.1.0?bundle');
+  const result=await validatePdfFile(file);
+  const signatures=result.signatures||[];
+  const cryptographicallyIntact=signatures.length>0 && signatures.every(sig=>sig.status==='VALID' && sig.integrity?.bytes==='INTACT');
+  const fullDocCovered=signatures.length>0 && signatures.every(sig=>sig.coversWholeDocument===true);
+  if(cryptographicallyIntact && fullDocCovered){
+   status.innerHTML='<strong style="color:#22c55e">✓ SIGNATURE CRYPTOGRAPHICALLY VALID</strong><br><small>Issuer trust and revocation are not checked.</small>';
+  }else if(signatures.some(sig=>sig.status==='INVALID' || sig.integrity?.bytes==='CHANGED')){
+   status.innerHTML='<strong style="color:#ef4444">✕ SIGNATURE INVALID OR DOCUMENT CHANGED</strong>';
+  }else{
+   status.innerHTML='<strong style="color:#eab308">? VALIDITY UNKNOWN — DO NOT TREAT AS VERIFIED</strong>';
+  }
+  const meta=result.metadata||{};
+  let html='<div class="result"><p><strong>Overall status:</strong> '+escapeHtml(result.overallStatus||'INDETERMINATE')+'</p><p><strong>Signatures found:</strong> '+escapeHtml(result.signatureCount??signatures.length)+'</p><p><strong>Document modified / later revision detected:</strong> '+(result.documentModified?'Yes / needs review':'Not detected by this check')+'</p>';
+  if(result.error)html+='<p>'+escapeHtml(result.error)+'</p>';
+  signatures.forEach((sig,index)=>{
+   html+='<section class="result"><h4>Signature '+(index+1)+'</h4><p><strong>Signer:</strong> '+escapeHtml(sig.signerName||'Unknown')+'</p><p><strong>Certificate issuer:</strong> '+escapeHtml(sig.certificate?.issuer||'Unknown')+'</p><p><strong>Signature math:</strong> '+escapeHtml(sig.status||'INDETERMINATE')+'</p><p><strong>Byte integrity:</strong> '+escapeHtml(sig.integrity?.bytes||'NOT_CHECKED')+'</p><p><strong>Whole document covered:</strong> '+(sig.coversWholeDocument?'Yes':'No / unknown')+'</p><p><strong>Certificate trust:</strong> Not independently established against India CCA</p><p><strong>Revocation status:</strong> Not checked</p>';
+   if(sig.signedAt)html+='<p><strong>Signing time:</strong> '+escapeHtml(new Date(sig.signedAt).toLocaleString())+'</p>';
+   if(sig.error)html+='<p><strong>Note:</strong> '+escapeHtml(sig.error)+'</p>';
+   html+='</section>';
+  });
+  html+='<p><strong>Privacy:</strong> PDF processing was performed locally in this browser tab. The validation library code may be downloaded from its CDN, but the selected PDF is not sent to that CDN.</p></div>';
+  report.innerHTML=html;
+ }catch(error){
+  status.innerHTML='<strong style="color:#eab308">VALIDATION COULD NOT BE COMPLETED</strong>';
+  report.innerHTML='<div class="result">'+escapeHtml(error?.message||'The verifier could not load or process this PDF.')+'</div>';
+ }
+};
 </body></html>
