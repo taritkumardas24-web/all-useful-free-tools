@@ -1,5 +1,6 @@
 import io
 import os
+import tempfile
 from typing import Any
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
@@ -13,7 +14,7 @@ from pyhanko_certvalidator import ValidationContext
 from pyhanko.sign.validation import validate_pdf_signature
 
 MAX_BYTES = 25 * 1024 * 1024
-ROOT_PATH = os.getenv("CCA_ROOT_CERT_PATH", "")
+ROOT_PEM = os.getenv("CCA_ROOT_CERT_PEM", "").strip()
 ALLOWED_ORIGINS = [
     item.strip()
     for item in os.getenv(
@@ -35,7 +36,7 @@ app.add_middleware(
 
 @app.get("/health")
 def health() -> dict[str, Any]:
-    configured = bool(ROOT_PATH and os.path.isfile(ROOT_PATH))
+    configured = bool(ROOT_PEM.startswith("-----BEGIN CERTIFICATE-----") and "-----END CERTIFICATE-----" in ROOT_PEM)
     return {
         "status": "ok",
         "verification_engine": "pyHanko",
@@ -45,7 +46,7 @@ def health() -> dict[str, Any]:
 
 
 def _validate_pdf(data: bytes) -> dict[str, Any]:
-    if not ROOT_PATH or not os.path.isfile(ROOT_PATH):
+    if not ROOT_PEM.startswith("-----BEGIN CERTIFICATE-----"):
         return {
             "overall": "unverified",
             "green_verified": False,
@@ -55,7 +56,7 @@ def _validate_pdf(data: bytes) -> dict[str, Any]:
         }
 
     try:
-        roots = list(load_certs_from_pemder([ROOT_PATH]))
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".pem", encoding="ascii") as cert_file:\n            cert_file.write(ROOT_PEM)\n            cert_file.flush()\n            roots = list(load_certs_from_pemder([cert_file.name]))
         if not roots:
             raise ValueError("No certificates found in configured trust file")
 
