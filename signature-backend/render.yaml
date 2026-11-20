@@ -9,5 +9,5 @@ services:
     envVars:
       - key: CCA_ROOT_CERT_PEM
         sync: false
-      - key: ALLOWED_ORIGINS
+      - key: CCA_ROOT_SHA256_HEX\n        sync: false\n      - key: ALLOWED_ORIGINS
         value: https://taritkumardas24-web.github.io
